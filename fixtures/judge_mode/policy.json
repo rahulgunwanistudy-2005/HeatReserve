@@ -1,0 +1,22 @@
+{
+  "policy_id": "delhi-rider-adaptation",
+  "tenant_id": "demo-tenant",
+  "version": "1.0.0",
+  "status": "published",
+  "source_type": "official_heat_warning",
+  "min_consecutive_warning_days": 2,
+  "episode_block_days": 3,
+  "allowed_worker_types": [
+    "delivery_rider"
+  ],
+  "allowed_zones": [
+    "DELHI_DEMO_ZONE_A",
+    "DELHI_DEMO_ZONE_B",
+    "DELHI_DEMO_ZONE_C"
+  ],
+  "currency": "INR",
+  "amount_minor": 20000,
+  "per_episode_cap_minor": 20000,
+  "reserve_id": "reserve-demo-001",
+  "sha256": "96c88d82f4b5526bda91dbf2978193fca7856ffc85b7daeb7cd7628b116b8d5d"
+}

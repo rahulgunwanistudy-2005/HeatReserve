@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+*.db
+*.pyc
+data/*
+!data/.gitkeep
+PROJECT_AUDIT_REPORT.md

@@ -1,0 +1,9 @@
+{
+  "reserve_id": "reserve-demo-001",
+  "tenant_id": "demo-tenant",
+  "currency": "INR",
+  "initial_minor": 120000,
+  "current_minor": 120000,
+  "version": 0,
+  "fixture_class": "SIMULATED"
+}

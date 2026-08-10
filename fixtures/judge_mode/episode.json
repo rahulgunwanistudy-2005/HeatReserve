@@ -1,0 +1,11 @@
+{
+  "episode_id": "episode:demo-delhi-001",
+  "zone_id": "DELHI_DEMO_ZONE_A",
+  "builder_version": "episode-builder-v1",
+  "start_at": "2026-05-28T00:00:00+05:30",
+  "end_at": "2026-05-30T23:59:59+05:30",
+  "warning_snapshot_ids": [
+    "snapshot:warning-demo-001"
+  ],
+  "canonical_sha256": "50a045ccd4f9e603e385f3ddf0a4e6ab0a8138fc030dd20b434bbf39c9e7be4a"
+}

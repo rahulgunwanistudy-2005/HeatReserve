@@ -1,0 +1,19 @@
+services:
+  heatreserve:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      HEATRESERVE_MODE: judge
+      HEATRESERVE_DATABASE_PATH: /data/heatreserve.db
+      HEATRESERVE_PLANNER_PROVIDER: deterministic
+    volumes:
+      - heatreserve_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  heatreserve_data:

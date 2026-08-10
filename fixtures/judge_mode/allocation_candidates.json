@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "fixture_class": "SIMULATED",
+  "candidates": [
+    {
+      "worker_id": "demo-worker-001",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 450,
+      "burden_score": 0.91,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-002",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 430,
+      "burden_score": 0.86,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-003",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 410,
+      "burden_score": 0.84,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-004",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 440,
+      "burden_score": 0.95,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-005",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 420,
+      "burden_score": 0.88,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-006",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 400,
+      "burden_score": 0.82,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-007",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 300,
+      "burden_score": 0.78,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-008",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 280,
+      "burden_score": 0.74,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-009",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 260,
+      "burden_score": 0.7,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-010",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 390,
+      "burden_score": 0.8,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-011",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 380,
+      "burden_score": 0.79,
+      "evidence_class": "SIMULATED"
+    },
+    {
+      "worker_id": "demo-worker-012",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "cost_minor": 20000,
+      "modeled_high_heat_minutes": 240,
+      "burden_score": 0.68,
+      "evidence_class": "SIMULATED"
+    }
+  ]
+}

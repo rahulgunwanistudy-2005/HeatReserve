@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0",
+  "fixture_class": "SIMULATED",
+  "zone_id": "DELHI_DEMO_ZONE_A",
+  "rows": [
+    {
+      "fact_id": "fact:hourly:06",
+      "at": "2026-05-28T06:00:00+05:30",
+      "temperature_c": 31.0,
+      "relative_humidity_pct": 55,
+      "apparent_temperature_c": 34.0,
+      "solar_proxy": 0.1,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:07",
+      "at": "2026-05-28T07:00:00+05:30",
+      "temperature_c": 32.0,
+      "relative_humidity_pct": 53,
+      "apparent_temperature_c": 35.0,
+      "solar_proxy": 0.18,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:08",
+      "at": "2026-05-28T08:00:00+05:30",
+      "temperature_c": 33.2,
+      "relative_humidity_pct": 50,
+      "apparent_temperature_c": 36.3,
+      "solar_proxy": 0.3,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:09",
+      "at": "2026-05-28T09:00:00+05:30",
+      "temperature_c": 34.6,
+      "relative_humidity_pct": 47,
+      "apparent_temperature_c": 38.1,
+      "solar_proxy": 0.46,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:10",
+      "at": "2026-05-28T10:00:00+05:30",
+      "temperature_c": 36.2,
+      "relative_humidity_pct": 43,
+      "apparent_temperature_c": 40.5,
+      "solar_proxy": 0.62,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:11",
+      "at": "2026-05-28T11:00:00+05:30",
+      "temperature_c": 38.0,
+      "relative_humidity_pct": 39,
+      "apparent_temperature_c": 43.0,
+      "solar_proxy": 0.76,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:12",
+      "at": "2026-05-28T12:00:00+05:30",
+      "temperature_c": 39.8,
+      "relative_humidity_pct": 36,
+      "apparent_temperature_c": 45.4,
+      "solar_proxy": 0.88,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:13",
+      "at": "2026-05-28T13:00:00+05:30",
+      "temperature_c": 41.2,
+      "relative_humidity_pct": 34,
+      "apparent_temperature_c": 47.0,
+      "solar_proxy": 0.96,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:14",
+      "at": "2026-05-28T14:00:00+05:30",
+      "temperature_c": 42.1,
+      "relative_humidity_pct": 33,
+      "apparent_temperature_c": 48.0,
+      "solar_proxy": 1.0,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:15",
+      "at": "2026-05-28T15:00:00+05:30",
+      "temperature_c": 42.4,
+      "relative_humidity_pct": 32,
+      "apparent_temperature_c": 48.5,
+      "solar_proxy": 0.96,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:16",
+      "at": "2026-05-28T16:00:00+05:30",
+      "temperature_c": 41.7,
+      "relative_humidity_pct": 33,
+      "apparent_temperature_c": 47.9,
+      "solar_proxy": 0.84,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:17",
+      "at": "2026-05-28T17:00:00+05:30",
+      "temperature_c": 40.4,
+      "relative_humidity_pct": 35,
+      "apparent_temperature_c": 46.2,
+      "solar_proxy": 0.66,
+      "warning_flag": true,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:18",
+      "at": "2026-05-28T18:00:00+05:30",
+      "temperature_c": 38.7,
+      "relative_humidity_pct": 39,
+      "apparent_temperature_c": 43.8,
+      "solar_proxy": 0.42,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:19",
+      "at": "2026-05-28T19:00:00+05:30",
+      "temperature_c": 37.0,
+      "relative_humidity_pct": 43,
+      "apparent_temperature_c": 41.5,
+      "solar_proxy": 0.22,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:20",
+      "at": "2026-05-28T20:00:00+05:30",
+      "temperature_c": 35.4,
+      "relative_humidity_pct": 47,
+      "apparent_temperature_c": 39.3,
+      "solar_proxy": 0.08,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    },
+    {
+      "fact_id": "fact:hourly:21",
+      "at": "2026-05-28T21:00:00+05:30",
+      "temperature_c": 34.2,
+      "relative_humidity_pct": 50,
+      "apparent_temperature_c": 37.8,
+      "solar_proxy": 0.0,
+      "warning_flag": false,
+      "source_snapshot_id": "snapshot:weather-demo-001"
+    }
+  ],
+  "note": "Synthetic hourly conditions shaped to create a deterministic planning trade-off."
+}

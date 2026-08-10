@@ -1,0 +1,432 @@
+openapi: 3.1.0
+info:
+  title: HeatReserve API
+  description: Replay-first climate adaptation decision infrastructure.
+  version: 0.2.0
+paths:
+  /health/live:
+    get:
+      summary: Live
+      operationId: live_health_live_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Live Health Live Get
+  /health/ready:
+    get:
+      summary: Ready
+      operationId: ready_health_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/judge/reset:
+    post:
+      summary: Judge Reset
+      operationId: judge_reset_v1_judge_reset_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/judge/run:
+    post:
+      summary: Judge Run
+      operationId: judge_run_v1_judge_run_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/episodes/{episode_id}:
+    get:
+      summary: Episode
+      operationId: episode_v1_episodes__episode_id__get
+      parameters:
+      - name: episode_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Episode Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/workers/{worker_id}/commitments:
+    post:
+      summary: Commitment
+      operationId: commitment_v1_workers__worker_id__commitments_post
+      parameters:
+      - name: worker_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Worker Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommitmentRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/workers/{worker_id}/plans:
+    post:
+      summary: Plan
+      operationId: plan_v1_workers__worker_id__plans_post
+      parameters:
+      - name: worker_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Worker Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/allocator/scenarios:
+    post:
+      summary: Allocator
+      operationId: allocator_v1_allocator_scenarios_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllocatorRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/receipts/{receipt_id}:
+    get:
+      summary: Receipt
+      operationId: receipt_v1_receipts__receipt_id__get
+      parameters:
+      - name: receipt_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Receipt Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/receipts/verify:
+    post:
+      summary: Receipt Verify
+      operationId: receipt_verify_v1_receipts_verify_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptVerifyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evidence/sources:
+    get:
+      summary: Evidence Sources
+      operationId: evidence_sources_v1_evidence_sources_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AllocatorRequest:
+      properties:
+        budget_minor:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Budget Minor
+      additionalProperties: false
+      type: object
+      title: AllocatorRequest
+    CommitmentRequest:
+      properties:
+        episode_id:
+          type: string
+          title: Episode Id
+        policy_id:
+          type: string
+          title: Policy Id
+        policy_version:
+          type: string
+          title: Policy Version
+      additionalProperties: false
+      type: object
+      required:
+      - episode_id
+      - policy_id
+      - policy_version
+      title: CommitmentRequest
+    DecisionReceipt:
+      properties:
+        schema_version:
+          type: string
+          const: '1.0'
+          title: Schema Version
+          default: '1.0'
+        receipt_id:
+          type: string
+          title: Receipt Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        worker_id:
+          type: string
+          title: Worker Id
+        episode_id:
+          type: string
+          title: Episode Id
+        commitment_id:
+          type: string
+          title: Commitment Id
+        plan_id:
+          type: string
+          title: Plan Id
+        plan_sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Plan Sha256
+        policy_id:
+          type: string
+          title: Policy Id
+        policy_version:
+          type: string
+          title: Policy Version
+        decision_status:
+          type: string
+          enum:
+          - QUALIFIED
+          - NOT_QUALIFIED
+          - MANUAL_REVIEW
+          title: Decision Status
+        decision_reason_codes:
+          items:
+            type: string
+          type: array
+          title: Decision Reason Codes
+        decision_idempotency_key:
+          type: string
+          title: Decision Idempotency Key
+        amount_minor:
+          type: integer
+          minimum: 0.0
+          title: Amount Minor
+        source_snapshot_ids:
+          items:
+            type: string
+          type: array
+          title: Source Snapshot Ids
+        planner_mode:
+          type: string
+          title: Planner Mode
+        provider:
+          type: string
+          title: Provider
+        model:
+          type: string
+          title: Model
+        prompt_version:
+          type: string
+          title: Prompt Version
+        verifier_version:
+          type: string
+          title: Verifier Version
+        tool_fact_ids:
+          items:
+            type: string
+          type: array
+          title: Tool Fact Ids
+        evidence_class:
+          $ref: '#/components/schemas/EvidenceClass'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        digest:
+          anyOf:
+          - $ref: '#/components/schemas/ReceiptDigest'
+          - type: 'null'
+      additionalProperties: false
+      type: object
+      required:
+      - receipt_id
+      - tenant_id
+      - worker_id
+      - episode_id
+      - commitment_id
+      - plan_id
+      - plan_sha256
+      - policy_id
+      - policy_version
+      - decision_status
+      - decision_reason_codes
+      - decision_idempotency_key
+      - amount_minor
+      - source_snapshot_ids
+      - planner_mode
+      - provider
+      - model
+      - prompt_version
+      - verifier_version
+      - tool_fact_ids
+      - evidence_class
+      - created_at
+      title: DecisionReceipt
+    EvidenceClass:
+      type: string
+      enum:
+      - RESEARCH
+      - MEASURED
+      - SIMULATED
+      - TARGET
+      title: EvidenceClass
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PlanRequest:
+      properties:
+        episode_id:
+          type: string
+          title: Episode Id
+      additionalProperties: false
+      type: object
+      required:
+      - episode_id
+      title: PlanRequest
+    ReceiptDigest:
+      properties:
+        algorithm:
+          type: string
+          const: SHA-256
+          title: Algorithm
+          default: SHA-256
+        value:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Value
+      additionalProperties: false
+      type: object
+      required:
+      - value
+      title: ReceiptDigest
+    ReceiptVerifyRequest:
+      properties:
+        receipt:
+          $ref: '#/components/schemas/DecisionReceipt'
+      additionalProperties: false
+      type: object
+      required:
+      - receipt
+      title: ReceiptVerifyRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

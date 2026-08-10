@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "fixture_class": "SIMULATED",
+  "source_type": "official_heat_warning",
+  "zone_id": "DELHI_DEMO_ZONE_A",
+  "issued_at": "2026-05-27T12:00:00+05:30",
+  "valid_from": "2026-05-28T00:00:00+05:30",
+  "valid_to": "2026-05-30T23:59:59+05:30",
+  "warning_days": [
+    "2026-05-28",
+    "2026-05-29",
+    "2026-05-30"
+  ],
+  "note": "Illustrative replay fixture. It is not presented as an observed IMD warning."
+}

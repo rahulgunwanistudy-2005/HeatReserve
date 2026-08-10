@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.0",
+  "fixture_class": "SIMULATED",
+  "workers": [
+    {
+      "worker_id": "demo-worker-001",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T12:00:00+05:30",
+            "end": "2026-05-28T18:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-002",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T13:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T08:00:00+05:30",
+            "end": "2026-05-28T13:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 300,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-003",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T13:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T14:00:00+05:30",
+            "end": "2026-05-28T20:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-004",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T10:00:00+05:30",
+            "end": "2026-05-28T20:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T11:00:00+05:30",
+            "end": "2026-05-28T17:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 300,
+        "workload_class": "heavy"
+      }
+    },
+    {
+      "worker_id": "demo-worker-005",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T07:00:00+05:30",
+            "end": "2026-05-28T21:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T12:00:00+05:30",
+            "end": "2026-05-28T18:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-006",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T16:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T10:00:00+05:30",
+            "end": "2026-05-28T16:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 300,
+        "workload_class": "light"
+      }
+    },
+    {
+      "worker_id": "demo-worker-007",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T08:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T13:00:00+05:30",
+            "end": "2026-05-28T19:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-008",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T18:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T11:00:00+05:30",
+            "end": "2026-05-28T17:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 300,
+        "workload_class": "heavy"
+      }
+    },
+    {
+      "worker_id": "demo-worker-009",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T12:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T13:00:00+05:30",
+            "end": "2026-05-28T19:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-010",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_A",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T20:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T12:00:00+05:30",
+            "end": "2026-05-28T18:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "light"
+      }
+    },
+    {
+      "worker_id": "demo-worker-011",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_B",
+      "language": "hi",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T08:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T14:00:00+05:30",
+            "end": "2026-05-28T20:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    },
+    {
+      "worker_id": "demo-worker-012",
+      "tenant_id": "demo-tenant",
+      "worker_type": "delivery_rider",
+      "zone_id": "DELHI_DEMO_ZONE_C",
+      "language": "en",
+      "constraints": {
+        "available_windows": [
+          {
+            "start": "2026-05-28T06:00:00+05:30",
+            "end": "2026-05-28T22:00:00+05:30"
+          }
+        ],
+        "preferred_windows": [
+          {
+            "start": "2026-05-28T12:00:00+05:30",
+            "end": "2026-05-28T18:00:00+05:30"
+          }
+        ],
+        "required_work_minutes": 360,
+        "workload_class": "moderate"
+      }
+    }
+  ]
+}

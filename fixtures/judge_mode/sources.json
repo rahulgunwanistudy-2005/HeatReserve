@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "id": "rct-ideasforindia",
+      "label": "RCT mechanism evidence",
+      "title": "Real-time adaptation to heatwaves among urban gig workers",
+      "evidence_class": "RESEARCH",
+      "url": "https://www.ideasforindia.in/topics/environment/real-time-adaptation-to-heatwaves-among-urban-gig-workers"
+    },
+    {
+      "id": "niosh-heat",
+      "label": "Occupational heat safety boundary",
+      "title": "NIOSH Heat Stress guidance",
+      "evidence_class": "RESEARCH",
+      "url": "https://www.cdc.gov/niosh/heat-stress/"
+    },
+    {
+      "id": "sdg8",
+      "label": "Primary SDG target",
+      "title": "UN SDG 8.8",
+      "evidence_class": "RESEARCH",
+      "url": "https://sdgs.un.org/goals/goal8"
+    },
+    {
+      "id": "sdg13",
+      "label": "Secondary SDG target",
+      "title": "UN SDG 13.1",
+      "evidence_class": "RESEARCH",
+      "url": "https://sdgs.un.org/goals/goal13"
+    },
+    {
+      "id": "swissre-wcs",
+      "label": "Novelty guardrail",
+      "title": "Existing heat-triggered financial protection in India",
+      "evidence_class": "RESEARCH",
+      "url": "https://www.swissre.com/our-business/public-sector-solutions/insights/financial-solutions-for-women-workers-india.html"
+    },
+    {
+      "id": "judge-fixture",
+      "label": "Judge replay data",
+      "title": "HeatReserve deterministic replay fixture",
+      "evidence_class": "SIMULATED",
+      "url": "fixture://judge_mode"
+    }
+  ]
+}

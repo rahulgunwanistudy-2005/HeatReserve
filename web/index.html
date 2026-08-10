@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0B1020">
+  <meta name="description" content="HeatReserve turns verified heat episodes into deterministic adaptation support, lower-exposure planning, and auditable receipts.">
+  <title>HeatReserve · Adaptation before peak heat</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><strong>HeatReserve</strong><small>adaptation infrastructure</small></div>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="worker" type="button"><span>01</span> Worker</button>
+        <button class="nav-item" data-view="sponsor" type="button"><span>02</span> Sponsor</button>
+        <button class="nav-item" data-view="evidence" type="button"><span>03</span> Evidence</button>
+      </nav>
+      <div class="sidebar-note">
+        <span class="eyebrow">REPLAY MODE</span>
+        <p>Frozen, hash-verified fixtures. No network dependency for the judge path.</p>
+      </div>
+      <button id="judge-launch" class="judge-launch" type="button" disabled>▶ Run Judge Mode <span>55s</span></button>
+    </aside>
+
+    <main id="main" class="main-stage" tabindex="-1">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">OURPLANET.ROCKS · TECHNICAL TRACK</span>
+          <p id="status-line">Loading verified replay…</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="mode-pill"><i></i> VERIFIED REPLAY</div>
+          <button id="language-toggle" class="ghost-button" type="button" aria-label="Toggle language">EN / हिंदी</button>
+        </div>
+      </header>
+      <section id="view-root" class="view-root" aria-live="polite"></section>
+      <footer class="footer">
+        <span>HeatReserve v0.2 · demo data is synthetic unless marked RESEARCH</span>
+        <span>SDG 8.8 · SDG 13.1</span>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="judge-dialog" class="judge-dialog" aria-labelledby="judge-title">
+    <div class="judge-shell">
+      <header class="judge-header">
+        <div>
+          <span class="eyebrow">JUDGE MODE · DETERMINISTIC STATE MACHINE</span>
+          <h2 id="judge-title">From warning to room to act.</h2>
+        </div>
+        <button id="judge-close" class="icon-button" type="button" aria-label="Close Judge Mode">×</button>
+      </header>
+      <div class="judge-progress" aria-label="Judge Mode progress"><span id="judge-progress-bar"></span></div>
+      <section id="judge-stage" class="judge-stage"></section>
+      <footer class="judge-controls">
+        <button id="judge-prev" class="ghost-button" type="button">← Back</button>
+        <div class="judge-step-label"><span id="judge-step">1 / 6</span><small id="judge-autoplay-state">Manual</small></div>
+        <button id="judge-play" class="ghost-button" type="button">▶ Auto</button>
+        <button id="judge-next" class="primary-button" type="button">Next →</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <noscript>This demo requires JavaScript for the interactive replay. The API and evaluation suite work independently.</noscript>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

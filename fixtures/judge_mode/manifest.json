@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "judge-mode-v1",
+  "network_required": false,
+  "generated_by": "scripts/build_fixtures.py",
+  "files": [
+    {
+      "path": "allocation_candidates.json",
+      "sha256": "1a25c847ae177b94b0247c101e6e418e72ec3caae94702712dceed3c32b4ac73",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://allocation_candidates.json"
+    },
+    {
+      "path": "cooling_points.json",
+      "sha256": "c98defb76632455b3813d153b93729d094083a822a483ff9caa35e911440d50a",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://cooling_points.json"
+    },
+    {
+      "path": "episode.json",
+      "sha256": "bbaf4983dc5cc62840570701b8e24588b5b989be3aeb575a00622f5ec8e248f5",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://episode.json"
+    },
+    {
+      "path": "policy.json",
+      "sha256": "2e410747cc0ce788be1af04189b5e1dc455a8f81326d5a2d5cc626c86416978b",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://policy.json"
+    },
+    {
+      "path": "reserve.json",
+      "sha256": "eb41e9b1caf349477128f8f71c6eb7ef7671a080ad2f80fb925c02e1331e06c4",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://reserve.json"
+    },
+    {
+      "path": "source_snapshots.json",
+      "sha256": "fcc8bf93024f567d05501a4e38fcbf2c114f93aab1515282b6d397354d1cb5a5",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://source_snapshots.json"
+    },
+    {
+      "path": "sources.json",
+      "sha256": "2f1053867f4c5ca42b8447913e586b26ecf74d8325ec71e86eeca32e0fc2d7b0",
+      "media_type": "application/json",
+      "evidence_class": "MIXED",
+      "source_uri": "fixture://sources.json"
+    },
+    {
+      "path": "warning.json",
+      "sha256": "ecd3d7051396a33b66b5e4140f8c8ce57a417b0839fb63c9725319ee4cebfc79",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://warning.json"
+    },
+    {
+      "path": "weather.json",
+      "sha256": "7a2435a89071eeb71d1c27eb79361f172fe3e0b37312cdf9d64792ae126c5eed",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://weather.json"
+    },
+    {
+      "path": "workers.json",
+      "sha256": "ef84d599663156e4db6a48f8907f0013d4b2a4412ae5fc0c7e72c67ee828b5c6",
+      "media_type": "application/json",
+      "evidence_class": "SIMULATED",
+      "source_uri": "fixture://workers.json"
+    }
+  ]
+}

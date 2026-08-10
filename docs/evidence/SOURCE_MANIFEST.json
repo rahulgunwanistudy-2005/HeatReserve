@@ -1,0 +1,101 @@
+{
+  "checked_at": "2026-08-10",
+  "sources": [
+    {
+      "id": "competition-devpost",
+      "title": "OurPlanet.Rocks Devpost",
+      "url": "https://ourplanetrocks.devpost.com/",
+      "type": "OFFICIAL_COMPETITION",
+      "checked_at": "2026-08-10",
+      "purpose": "requirements, criteria, judges, current submission instructions"
+    },
+    {
+      "id": "competition-rubric",
+      "title": "Judging Final Version PDF",
+      "url": "https://ourplanet.rocks/wp-content/uploads/2026/08/Judging-Final-Version.pdf",
+      "type": "OFFICIAL_COMPETITION",
+      "checked_at": "2026-08-10",
+      "purpose": "detailed rubric; direct fetch may require organizer access/cache"
+    },
+    {
+      "id": "rct-ideasforindia",
+      "title": "Real-time adaptation to heatwaves among urban gig workers",
+      "url": "https://www.ideasforindia.in/topics/environment/real-time-adaptation-to-heatwaves-among-urban-gig-workers",
+      "type": "RESEARCH_EXPLAINER",
+      "checked_at": "2026-08-10",
+      "purpose": "RCT design/results/policy implications"
+    },
+    {
+      "id": "rct-ssrn",
+      "title": "Liquidity Constraints and Real-Time Adaptation to Extreme Heat",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5985794",
+      "type": "WORKING_PAPER",
+      "checked_at": "2026-08-10",
+      "purpose": "underlying study"
+    },
+    {
+      "id": "swissre-wcs",
+      "title": "Extreme heat triggers novel payout for over 46,000 at-risk workers in India",
+      "url": "https://www.swissre.com/our-business/public-sector-solutions/insights/financial-solutions-for-women-workers-india.html",
+      "type": "PROGRAM_CASE",
+      "checked_at": "2026-08-10",
+      "purpose": "existing heat finance / novelty guardrail"
+    },
+    {
+      "id": "cgap-sewa",
+      "title": "Confronting the Climate and Health Nexus: Lessons from SEWA",
+      "url": "https://www.cgap.org/research/publication/confronting-climate-and-health-nexus-lessons-self-employed-womens-association",
+      "type": "PROGRAM_CASE",
+      "checked_at": "2026-08-10",
+      "purpose": "heat insurance scaling/program design"
+    },
+    {
+      "id": "niosh-heat-app",
+      "title": "OSHA-NIOSH Heat Safety Tool",
+      "url": "https://www.cdc.gov/niosh/heat-stress/communication-resources/app.html",
+      "type": "OFFICIAL_GUIDANCE",
+      "checked_at": "2026-08-10",
+      "purpose": "Heat Index/WBGT limitations"
+    },
+    {
+      "id": "niosh-workplace",
+      "title": "NIOSH Workplace Recommendations",
+      "url": "https://www.cdc.gov/niosh/heat-stress/recommendations/",
+      "type": "OFFICIAL_GUIDANCE",
+      "checked_at": "2026-08-10",
+      "purpose": "work/rest and exposure controls"
+    },
+    {
+      "id": "ilo-heat",
+      "title": "Heat at work: Implications for safety and health",
+      "url": "https://www.ilo.org/publications/heat-work-implications-safety-and-health",
+      "type": "OFFICIAL_RESEARCH",
+      "checked_at": "2026-08-10",
+      "purpose": "global occupational heat context"
+    },
+    {
+      "id": "sdg8",
+      "title": "UN SDG 8",
+      "url": "https://sdgs.un.org/goals/goal8",
+      "type": "OFFICIAL_SDG",
+      "checked_at": "2026-08-10",
+      "purpose": "Target 8.8"
+    },
+    {
+      "id": "sdg13",
+      "title": "UN SDG 13",
+      "url": "https://sdgs.un.org/goals/goal13",
+      "type": "OFFICIAL_SDG",
+      "checked_at": "2026-08-10",
+      "purpose": "Target 13.1"
+    },
+    {
+      "id": "openmeteo",
+      "title": "Open-Meteo Documentation",
+      "url": "https://open-meteo.com/en/docs",
+      "type": "DATA_API_CANDIDATE",
+      "checked_at": "2026-08-10",
+      "purpose": "forecast/replay weather adapter"
+    }
+  ]
+}

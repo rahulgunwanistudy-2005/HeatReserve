@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-10T16:12:18.031541+00:00",
+  "fixture_id": "judge-mode-v1",
+  "evidence_contract": {
+    "external_study": "RESEARCH",
+    "system_checks": "MEASURED",
+    "replay_impact": "SIMULATED",
+    "future_scale": "TARGET"
+  },
+  "policy": {
+    "repeated_runs": 50,
+    "identical_runs": true,
+    "evidence_class": "MEASURED"
+  },
+  "replay": {
+    "core_outputs_identical": true,
+    "network_required": false,
+    "evidence_class": "MEASURED"
+  },
+  "planner": {
+    "baseline_burden": 4.9595,
+    "recommended_burden": 1.3288,
+    "modeled_burden_delta": 3.6307,
+    "high_heat_minutes_shifted": 360,
+    "impact_evidence_class": "SIMULATED",
+    "adversarial_cases": {
+      "cases": 35,
+      "fallbacks": 30,
+      "verified_provider_plans": 5,
+      "prohibited_language_outputs": 0,
+      "unsupported_location_outputs": 0,
+      "payout_changes_caused_by_ai": 0,
+      "evidence_class": "MEASURED"
+    },
+    "raw_structured_output_gate": {
+      "cases": 100,
+      "correct_classifications": 100,
+      "accepted_valid": 20,
+      "rejected_invalid": 80,
+      "scope": "Synthetic raw JSON parser/schema gate; not a live-model reliability claim.",
+      "evidence_class": "MEASURED"
+    }
+  },
+  "ablation": {
+    "scope": "Frozen replay component ablation only. The support-only arm assumes no schedule change and is not a causal estimate of worker behavior.",
+    "warning_only": {
+      "support_minor": 0,
+      "planner": false,
+      "modeled_burden": 4.9595,
+      "evidence_class": "SIMULATED"
+    },
+    "support_only": {
+      "support_minor": 20000,
+      "planner": false,
+      "modeled_burden": 4.9595,
+      "evidence_class": "SIMULATED"
+    },
+    "heatreserve": {
+      "support_minor": 20000,
+      "planner": true,
+      "modeled_burden": 1.3288,
+      "modeled_burden_delta": 3.6307,
+      "high_heat_minutes_shifted": 360,
+      "evidence_class": "SIMULATED"
+    },
+    "modeled_high_heat_minutes_shifted_per_1000_inr": 1800.0,
+    "evidence_class": "SIMULATED"
+  },
+  "receipt": {
+    "original_valid": true,
+    "tampered_valid": false,
+    "ledger_reconciles": true,
+    "evidence_class": "MEASURED"
+  },
+  "allocator": {
+    "budget_minor": 120000,
+    "strategies": [
+      {
+        "name": "equal",
+        "spend_minor": 120000,
+        "selected": 6,
+        "zone_count": 2,
+        "projected_high_heat_minutes_addressed": 2550,
+        "evidence_class": "SIMULATED"
+      },
+      {
+        "name": "impact_first",
+        "spend_minor": 120000,
+        "selected": 6,
+        "zone_count": 2,
+        "projected_high_heat_minutes_addressed": 2550,
+        "evidence_class": "SIMULATED"
+      },
+      {
+        "name": "fairness_constrained",
+        "spend_minor": 120000,
+        "selected": 6,
+        "zone_count": 3,
+        "projected_high_heat_minutes_addressed": 2450,
+        "evidence_class": "SIMULATED"
+      }
+    ],
+    "budget_conserved": true,
+    "evidence_class": "MEASURED"
+  },
+  "latency": {
+    "sample_size": 25,
+    "median_ms": 11.71,
+    "p95_ms": 34.29,
+    "max_ms": 36.01,
+    "scope": "local in-process full judge replay including SQLite reset/writes",
+    "evidence_class": "MEASURED"
+  }
+}
