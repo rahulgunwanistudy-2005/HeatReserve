@@ -11,6 +11,7 @@ from typing import Protocol
 from .burden import ScoredHour, score_hours, top_band_threshold
 from .domain import AdaptationPlan, CoolingPoint, HourlyCondition, PlanBlock, Worker
 from .evidence import canonical_sha256
+from .optimizer import OPTIMIZER_VERSION, explain_optimization, optimize_work_hours
 from .prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
 
 PROHIBITED_PATTERNS = (
@@ -48,7 +49,10 @@ class PlannerProvider(Protocol):
 
 class DeterministicProvider:
     name = "deterministic"
-    model = "fallback-v1"
+    model = OPTIMIZER_VERSION
+
+    def __init__(self, max_consecutive_hours: int = 3) -> None:
+        self.max_consecutive_hours = max_consecutive_hours
 
     def propose(
         self,
@@ -56,18 +60,18 @@ class DeterministicProvider:
         conditions: tuple[HourlyCondition, ...],
         cooling_points: tuple[CoolingPoint, ...],
     ) -> PlannerProposal:
-        scored = _available_scored_hours(worker, score_hours(conditions))
-        selected = tuple(
-            sorted(scored, key=lambda item: (item.score, item.condition.at))[
-                : _required_slots(worker)
-            ]
+        available = list(_available_scored_hours(worker, score_hours(conditions)))
+        required = _required_slots(worker)
+        result = optimize_work_hours(
+            available, required, max_consecutive=self.max_consecutive_hours
         )
-        selected = tuple(sorted(selected, key=lambda item: item.condition.at))
+        selected = result.selected
         cooling_id = cooling_points[0].cooling_point_id if cooling_points else None
+        explanation = explain_optimization(result, worker.constraints.required_work_minutes)
         return PlannerProposal(
             work_fact_ids=tuple(item.condition.fact_id for item in selected),
             cooling_point_id=cooling_id,
-            explanation="Shift feasible work hours toward lower modeled heat-burden periods.",
+            explanation=explanation,
             caveat=DEFAULT_CAVEAT,
         )
 
@@ -274,6 +278,7 @@ def build_plan(
     conditions: tuple[HourlyCondition, ...],
     cooling_points: tuple[CoolingPoint, ...],
     provider: PlannerProvider,
+    max_consecutive_hours: int = 3,
 ) -> AdaptationPlan:
     verified_points = tuple(p for p in cooling_points if p.verification_status == "VERIFIED")
     effective: PlannerProvider = provider
@@ -284,7 +289,7 @@ def build_plan(
         if not valid:
             raise ValueError("provider proposal failed deterministic verification")
     except (RuntimeError, ValueError, KeyError, TypeError):
-        effective = DeterministicProvider()
+        effective = DeterministicProvider(max_consecutive_hours=max_consecutive_hours)
         proposal = effective.propose(worker, conditions, verified_points)
         verifier_status = "FALLBACK"
     valid, errors = _validate_proposal(proposal, worker, conditions, verified_points)

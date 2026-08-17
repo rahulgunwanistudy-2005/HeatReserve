@@ -13,6 +13,21 @@ class EvidenceClass(StrEnum):
     MEASURED = "MEASURED"
     SIMULATED = "SIMULATED"
     TARGET = "TARGET"
+    OBSERVED = "OBSERVED"  # live adapter fetch; extends taxonomy intentionally
+
+
+class SourceFreshness(StrEnum):
+    FRESH = "FRESH"
+    STALE = "STALE"
+    UNAVAILABLE = "UNAVAILABLE"
+
+
+class DisbursementState(StrEnum):
+    COMMITTED = "COMMITTED"
+    DISBURSEMENT_PENDING = "DISBURSEMENT_PENDING"
+    DISBURSED = "DISBURSED"
+    FAILED = "FAILED"
+    REVERSED = "REVERSED"
 
 
 MinorUnits = Annotated[StrictInt, Field(ge=0)]
@@ -234,6 +249,7 @@ class DecisionReceipt(StrictModel):
     evidence_class: EvidenceClass
     created_at: datetime
     digest: ReceiptDigest | None = None
+    signature_info: dict[str, str] | None = None
 
 
 class Metric(StrictModel):
@@ -242,6 +258,42 @@ class Metric(StrictModel):
     unit: str
     evidence_class: EvidenceClass
     source: str
+
+
+class AuditEvent(StrictModel):
+    event_id: str
+    tenant_id: str
+    actor: str
+    request_id: str
+    event_type: str
+    target_type: str
+    target_id: str
+    occurred_at: datetime
+    metadata: dict[str, str]
+
+    @field_validator("occurred_at")
+    @classmethod
+    def validate_occurred_at(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("audit event timestamp must be timezone-aware")
+        return value
+
+
+class RawSourceArtifact(StrictModel):
+    artifact_id: str
+    source_type: str
+    provider: str
+    source_uri: str
+    retrieved_at: datetime
+    issued_at: datetime | None
+    valid_from: datetime
+    valid_to: datetime
+    raw_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    media_type: str
+    adapter_version: str
+    parser_version: str
+    freshness: SourceFreshness
+    evidence_class: EvidenceClass
 
 
 def validate_timezone_name(name: str) -> str:

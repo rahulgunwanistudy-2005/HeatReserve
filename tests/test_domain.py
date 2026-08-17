@@ -54,10 +54,19 @@ def test_missing_humidity_is_rejected() -> None:
         })
 
 
-def test_live_mode_is_rejected_by_prototype(monkeypatch) -> None:
+def test_live_mode_is_accepted_by_config(monkeypatch) -> None:
     from heatreserve.config import Settings
 
     monkeypatch.setenv("HEATRESERVE_MODE", "live")
+    settings = Settings.from_env()
+    assert settings.mode == "live"
+    assert settings.is_live
+
+
+def test_invalid_mode_is_rejected(monkeypatch) -> None:
+    from heatreserve.config import Settings
+
+    monkeypatch.setenv("HEATRESERVE_MODE", "production_v2")
     import pytest
     with pytest.raises(ValueError, match="Unsupported HEATRESERVE_MODE"):
         Settings.from_env()

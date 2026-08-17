@@ -15,14 +15,18 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
+from .auth import AuthError, authenticate_api_key, judge_auth
 from .config import Settings
 from .domain import DecisionReceipt
 from .receipts import verify_receipt
 from .service import HeatReserveService
+from .sources import SourceFetchError, SourceParseError, SourceStaleError
 
 LOGGER = logging.getLogger("heatreserve.api")
 WEB_DIR = Path(__file__).resolve().parents[2] / "web"
 
+
+# ── Request models ──────────────────────────────────────────────────────────
 
 class CommitmentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -46,9 +50,13 @@ class ReceiptVerifyRequest(BaseModel):
     receipt: DecisionReceipt
 
 
+# ── Exceptions ───────────────────────────────────────────────────────────────
+
 class ServiceUnavailableError(RuntimeError):
     pass
 
+
+# ── Rate limiter ─────────────────────────────────────────────────────────────
 
 class FixedWindowLimiter:
     def __init__(self, limit: int = 90, window_seconds: int = 60) -> None:
@@ -70,12 +78,29 @@ class FixedWindowLimiter:
             return True
 
 
+# ── Auth helper ───────────────────────────────────────────────────────────────
+
+def _resolve_auth(request: Request, service: "HeatReserveService"):
+    """Return authorization context. Raises AuthError if auth required but missing/invalid."""
+    settings = service.settings
+    if settings.auth_mode == "none" or settings.is_judge or settings.mode == "replay":
+        return judge_auth()
+    if settings.auth_mode == "apikey":
+        api_key = request.headers.get("X-API-Key")
+        return authenticate_api_key(api_key, settings.api_keys)
+    return judge_auth()
+
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+
 def _configure_logging(level: str) -> None:
     logging.basicConfig(
         level=getattr(logging, level, logging.INFO),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
+
+# ── Lifespan ─────────────────────────────────────────────────────────────────
 
 def _lifespan(settings: Settings):
     @asynccontextmanager
@@ -92,12 +117,14 @@ def _lifespan(settings: Settings):
     return lifespan
 
 
+# ── Middleware ────────────────────────────────────────────────────────────────
+
 def _install_middleware(app: FastAPI, settings: Settings) -> None:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.allowed_origins),
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-API-Key"],
         allow_credentials=False,
     )
 
@@ -134,14 +161,33 @@ def _secured(response: JSONResponse) -> JSONResponse:
     return response
 
 
+# ── Exception handlers ────────────────────────────────────────────────────────
+
 def _install_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(_: Request, exc: RequestValidationError):
         return _error(422, "VALIDATION_ERROR", "Request validation failed.", exc.errors())
 
+    @app.exception_handler(AuthError)
+    async def auth_error_handler(_: Request, exc: AuthError):
+        code = 401 if exc.code == "AUTH_REQUIRED" else 403
+        return _error(code, exc.code, str(exc))
+
     @app.exception_handler(ServiceUnavailableError)
     async def unavailable_handler(_: Request, exc: ServiceUnavailableError):
         return _error(503, "SERVICE_NOT_READY", str(exc))
+
+    @app.exception_handler(SourceFetchError)
+    async def source_fetch_handler(_: Request, exc: SourceFetchError):
+        return _error(503, "SOURCE_UNAVAILABLE", str(exc))
+
+    @app.exception_handler(SourceStaleError)
+    async def source_stale_handler(_: Request, exc: SourceStaleError):
+        return _error(503, "SOURCE_STALE", str(exc))
+
+    @app.exception_handler(SourceParseError)
+    async def source_parse_handler(_: Request, exc: SourceParseError):
+        return _error(502, "SOURCE_PARSE_ERROR", str(exc))
 
     @app.exception_handler(KeyError)
     async def not_found_handler(_: Request, exc: KeyError):
@@ -156,6 +202,8 @@ def _install_exception_handlers(app: FastAPI) -> None:
         LOGGER.exception("Unhandled request error path=%s", request.url.path, exc_info=exc)
         return _error(500, "INTERNAL_ERROR", "The request could not be completed.")
 
+
+# ── Routers ───────────────────────────────────────────────────────────────────
 
 def _health_router() -> APIRouter:
     router = APIRouter()
@@ -174,6 +222,7 @@ def _health_router() -> APIRouter:
             })
         result = service.readiness()
         return result if result["ready"] else JSONResponse(status_code=503, content=result)
+
     return router
 
 
@@ -191,6 +240,7 @@ def _judge_router() -> APIRouter:
     @router.get("/v1/episodes/{episode_id}")
     def episode(request: Request, episode_id: str):
         return _service(request).get_episode(episode_id)
+
     return router
 
 
@@ -199,21 +249,36 @@ def _decision_router() -> APIRouter:
 
     @router.post("/v1/workers/{worker_id}/commitments")
     def commitment(request: Request, worker_id: str, body: CommitmentRequest):
-        record = _service(request).create_commitment(
+        service = _service(request)
+        _resolve_auth(request, service)
+        record = service.create_commitment(
             worker_id, body.episode_id, body.policy_id, body.policy_version
         )
-        payload = {"commitment_id": record.commitment_id or None,
-                   "created": record.created, "decision": record.decision}
+        payload = {
+            "commitment_id": record.commitment_id or None,
+            "created": record.created,
+            "decision": record.decision,
+        }
         if record.decision.status != "QUALIFIED":
-            details = {"error": {"code": "NOT_QUALIFIED", "message": "Commitment not created.",
-                                  "details": payload}}
-            return JSONResponse(status_code=status.HTTP_409_CONFLICT, content=_jsonable(details))
+            details = {
+                "error": {
+                    "code": "NOT_QUALIFIED",
+                    "message": "Commitment not created.",
+                    "details": payload,
+                }
+            }
+            return JSONResponse(
+                status_code=status.HTTP_409_CONFLICT, content=_jsonable(details)
+            )
         code = status.HTTP_201_CREATED if record.created else status.HTTP_200_OK
         return JSONResponse(status_code=code, content=_jsonable(payload))
 
     @router.post("/v1/workers/{worker_id}/plans", status_code=201)
     def plan(request: Request, worker_id: str, body: PlanRequest):
-        return _service(request).create_plan(worker_id, body.episode_id)
+        service = _service(request)
+        _resolve_auth(request, service)
+        return service.create_plan(worker_id, body.episode_id)
+
     return router
 
 
@@ -222,7 +287,8 @@ def _support_router() -> APIRouter:
 
     @router.post("/v1/allocator/scenarios")
     def allocator(request: Request, body: AllocatorRequest):
-        return {"results": _service(request).allocator_scenarios(body.budget_minor)}
+        service = _service(request)
+        return {"results": service.allocator_scenarios(body.budget_minor)}
 
     @router.get("/v1/receipts/{receipt_id}")
     def receipt(request: Request, receipt_id: str):
@@ -235,26 +301,59 @@ def _support_router() -> APIRouter:
     @router.get("/v1/evidence/sources")
     def evidence_sources(request: Request):
         return {"sources": _service(request).evidence_sources()}
+
+    @router.get("/v1/evidence/live")
+    def evidence_live(request: Request):
+        """
+        Returns the current live-source status.
+        In judge/replay mode, returns the fixture evidence summary.
+        In live mode, returns actual adapter status (freshness, sha256, age).
+        """
+        service = _service(request)
+        if service.settings.is_live:
+            return service.live_source_status()
+        # Fixture mode: return evidence class label clearly
+        return {
+            "status": "FIXTURE",
+            "mode": service.settings.mode,
+            "provider": "fixture",
+            "evidence_class": "SIMULATED",
+            "sources": service.evidence_sources(),
+        }
+
     return router
 
+
+# ── App factory ───────────────────────────────────────────────────────────────
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     _configure_logging(settings.log_level)
     app = FastAPI(
-        title="HeatReserve API", version="0.2.0",
-        description="Replay-first climate adaptation decision infrastructure.",
+        title="HeatReserve API",
+        version="0.3.0",
+        description=(
+            "Anticipatory heat-adaptation decision infrastructure. "
+            f"Mode: {settings.mode}. "
+            "AI plans. Policy controls money."
+        ),
         lifespan=_lifespan(settings),
     )
     _install_middleware(app, settings)
     _install_exception_handlers(app)
-    for router in (_health_router(), _judge_router(), _decision_router(), _support_router()):
+    for router in (
+        _health_router(),
+        _judge_router(),
+        _decision_router(),
+        _support_router(),
+    ):
         app.include_router(router)
     app.mount("/assets", StaticFiles(directory=WEB_DIR), name="assets")
 
     @app.get("/", include_in_schema=False)
     def web_index() -> FileResponse:
         return FileResponse(WEB_DIR / "index.html")
+
     return app
 
 
@@ -266,7 +365,9 @@ def _service(request: Request) -> HeatReserveService:
     return service
 
 
-def _error(status_code: int, code: str, message: str, details: Any | None = None) -> JSONResponse:
+def _error(
+    status_code: int, code: str, message: str, details: Any | None = None
+) -> JSONResponse:
     payload: dict[str, Any] = {"error": {"code": code, "message": message}}
     if details is not None:
         payload["error"]["details"] = details

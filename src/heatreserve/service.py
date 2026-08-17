@@ -1,16 +1,25 @@
 from __future__ import annotations
 
 import copy
+import logging
 import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from .allocator import AllocationCandidate, compare_strategies
+from .audit import AuditJournal, NullAuditJournal
+from .audit import (
+    COMMITMENT_CREATED, COMMITMENT_DENIED, COMMITMENT_REUSED,
+    DEMO_RESET, EPISODE_CREATED, PLAN_CREATED, PLAN_FALLBACK_USED,
+    RECEIPT_CREATED, RECONCILIATION_RUN, SOURCE_FETCH_FAILED,
+    SOURCE_SNAPSHOT_VERIFIED,
+)
 from .config import Settings
 from .domain import (
     AdaptationPlan,
     CoolingPoint,
+    EvidenceClass,
     HeatEpisode,
     HourlyCondition,
     Policy,
@@ -27,7 +36,16 @@ from .evidence import (
 )
 from .planner import DeterministicProvider, OllamaProvider, PlannerProvider, build_plan
 from .receipts import build_receipt, verify_receipt
+from .signing import load_signing_key
+from .sources import (
+    LiveSourceStatus,
+    SourceFetchError,
+    SourceParseError,
+    fetch_and_normalize_live,
+)
 from .storage import CommitmentRecord, Repository
+
+LOGGER = logging.getLogger("heatreserve.service")
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,17 +65,52 @@ class HeatReserveService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._judge_lock = threading.RLock()
+        self._live_source = LiveSourceStatus()
         require_verified_manifest(settings.fixture_dir)
         self.fixtures = load_fixture_bundle(settings.fixture_dir)
-        self.repository = Repository(settings.database_path)
+        self.repository = self._make_repository(settings)
         self.provider = _make_provider(settings)
+        self._signing_key = self._load_signing_key(settings)
+        self._audit = self._make_audit(settings)
         self.reset_demo()
+
+    def _make_repository(self, settings: Settings):
+        if settings.uses_postgres and settings.database_url:
+            try:
+                from .pg_storage import PostgresRepository
+                LOGGER.info("persistence.postgres url=%s", settings.database_url[:32])
+                return PostgresRepository(settings.database_url)
+            except ImportError as exc:
+                LOGGER.warning("persistence.pg_unavailable: %s; falling back to SQLite", exc)
+        return Repository(settings.database_path)
+
+    def _load_signing_key(self, settings: Settings):
+        if settings.receipt_signing_key_path and settings.receipt_signing_key_path.is_file():
+            key = load_signing_key(settings.receipt_signing_key_path)
+            if key:
+                LOGGER.info("signing.key_loaded key_id=%s", settings.receipt_signing_key_id)
+            return key
+        return None
+
+    def _make_audit(self, settings: Settings):
+        if settings.is_judge:
+            return NullAuditJournal()
+        audit_path = settings.database_path.parent / "audit.db"
+        return AuditJournal(audit_path)
 
     def readiness(self) -> dict[str, Any]:
         errors = self._integrity_errors()
         reserve = self.repository.get_reserve(self.fixtures.reserve.reserve_id)
         if reserve is None:
             errors.append("reserve_missing")
+
+        source_status = "FIXTURE"
+        if self.settings.is_live:
+            status = self._live_source.to_dict(self.settings.source_max_age_seconds)
+            source_status = status.get("status", "UNAVAILABLE")
+            if source_status != "FRESH":
+                errors.append(f"live_source_{source_status.lower()}")
+
         return {
             "ready": not errors,
             "mode": self.settings.mode,
@@ -65,6 +118,9 @@ class HeatReserveService:
             "fixture_manifest": (
                 "VERIFIED" if not verify_manifest(self.settings.fixture_dir) else "INVALID"
             ),
+            "database": "READY" if reserve is not None else "ERROR",
+            "source_pipeline": source_status,
+            "signing": "CONFIGURED" if self._signing_key is not None else "UNSIGNED",
             "errors": errors,
         }
 
@@ -73,6 +129,12 @@ class HeatReserveService:
             self.repository.reset_demo(
                 self.fixtures.workers, self.fixtures.policy, self.fixtures.reserve
             )
+        self._audit.record(
+            event_type=DEMO_RESET,
+            tenant_id=self.fixtures.policy.tenant_id,
+            actor="system",
+            metadata={"fixture_id": "judge-mode-v1"},
+        )
         return {
             "status": "RESET",
             "fixture_id": "judge-mode-v1",
@@ -85,8 +147,60 @@ class HeatReserveService:
             raise KeyError(f"Unknown episode: {episode_id}")
         return self.fixtures.episode
 
+    def get_live_conditions(self) -> tuple[HourlyCondition, ...]:
+        """
+        Returns live weather conditions for the configured zone.
+        INVARIANT: raises SourceFetchError on any failure — never returns fixture data.
+        This method is only called in live mode.
+        """
+        if not self.settings.is_live:
+            raise RuntimeError("get_live_conditions() called outside live mode")
+        if self._live_source.is_fresh(self.settings.source_max_age_seconds):
+            return self._live_source.conditions
+        # Fetch fresh data
+        try:
+            artifact, snapshot, conditions = fetch_and_normalize_live(
+                lat=self.settings.open_meteo_lat,
+                lon=self.settings.open_meteo_lon,
+                zone_id=self.settings.open_meteo_zone_id,
+                timeout_seconds=self.settings.source_timeout_seconds,
+                max_age_seconds=self.settings.source_max_age_seconds,
+            )
+            self._live_source.update(artifact, snapshot, conditions)
+            self._audit.record(
+                event_type=SOURCE_SNAPSHOT_VERIFIED,
+                tenant_id=self.fixtures.policy.tenant_id,
+                actor="system",
+                metadata={
+                    "provider": artifact.provider,
+                    "sha256": artifact.raw_sha256[:16],
+                    "rows": str(len(conditions)),
+                },
+            )
+            LOGGER.info(
+                "live.source_updated provider=%s conditions=%d sha256=%s",
+                artifact.provider, len(conditions), artifact.raw_sha256[:12],
+            )
+        except (SourceFetchError, SourceParseError) as exc:
+            self._audit.record(
+                event_type=SOURCE_FETCH_FAILED,
+                tenant_id=self.fixtures.policy.tenant_id,
+                actor="system",
+                metadata={"error": str(exc)[:200]},
+            )
+            raise
+        return self._live_source.conditions
+
+    def live_source_status(self) -> dict[str, Any]:
+        return self._live_source.to_dict(self.settings.source_max_age_seconds)
+
     def create_commitment(
-        self, worker_id: str, episode_id: str, policy_id: str, policy_version: str
+        self,
+        worker_id: str,
+        episode_id: str,
+        policy_id: str,
+        policy_version: str,
+        actor: str = "api",
     ) -> CommitmentRecord:
         worker = self._worker(worker_id)
         episode = self.get_episode(episode_id)
@@ -97,26 +211,81 @@ class HeatReserveService:
             snapshot for snapshot in self.fixtures.snapshots
             if snapshot.snapshot_id in episode.warning_snapshot_ids
         )
-        return self.repository.create_or_reuse_commitment(
+        record = self.repository.create_or_reuse_commitment(
             worker=worker, episode=episode, policy=policy, snapshots=snapshots
         )
+        event_type = (
+            COMMITMENT_REUSED if not record.created and record.commitment_id
+            else COMMITMENT_CREATED if record.decision.status == "QUALIFIED"
+            else COMMITMENT_DENIED
+        )
+        self._audit.record(
+            event_type=event_type,
+            tenant_id=worker.tenant_id,
+            actor=actor,
+            target_type="commitment",
+            target_id=record.commitment_id or "",
+            metadata={
+                "status": record.decision.status,
+                "amount_minor": str(record.decision.amount_minor),
+                "episode_id": episode_id,
+            },
+        )
+        return record
 
-    def create_plan(self, worker_id: str, episode_id: str) -> AdaptationPlan:
+    def create_plan(
+        self, worker_id: str, episode_id: str, actor: str = "api"
+    ) -> AdaptationPlan:
         worker = self._worker(worker_id)
         episode = self.get_episode(episode_id)
         if worker.zone_id != episode.zone_id:
             raise ValueError("No verified hourly replay facts are available for the worker zone")
+
+        # Use live conditions if in live mode, otherwise fixture conditions
+        if self.settings.is_live:
+            conditions = self.get_live_conditions()
+        else:
+            conditions = self.fixtures.conditions
+
         points = tuple(
             point for point in self.fixtures.cooling_points if point.zone_id == worker.zone_id
         )
-        plan = build_plan(
-            worker, episode.episode_id, self.fixtures.conditions, points, self.provider
-        )
+        try:
+            plan = build_plan(
+                worker, episode.episode_id, conditions, points, self.provider,
+                max_consecutive_hours=self.settings.max_consecutive_work_hours,
+            )
+            event_type = PLAN_CREATED
+        except Exception:
+            fallback = DeterministicProvider(
+                max_consecutive_hours=self.settings.max_consecutive_work_hours
+            )
+            plan = build_plan(
+                worker, episode.episode_id, conditions, points, fallback,
+                max_consecutive_hours=self.settings.max_consecutive_work_hours,
+            )
+            event_type = PLAN_FALLBACK_USED
         self.repository.save_plan(plan)
+        self._audit.record(
+            event_type=event_type,
+            tenant_id=worker.tenant_id,
+            actor=actor,
+            target_type="plan",
+            target_id=plan.plan_id,
+            metadata={
+                "planner_mode": plan.planner_mode,
+                "verifier_status": plan.verifier_status,
+                "burden_delta": str(round(plan.modeled_burden_delta, 4)),
+            },
+        )
         return plan
 
     def create_receipt(
-        self, worker_id: str, episode_id: str, plan: AdaptationPlan | None = None
+        self,
+        worker_id: str,
+        episode_id: str,
+        plan: AdaptationPlan | None = None,
+        actor: str = "api",
     ):
         worker = self._worker(worker_id)
         policy = self.fixtures.policy
@@ -129,7 +298,13 @@ class HeatReserveService:
         )
         if record is None:
             raise ValueError("A qualified commitment is required before creating a receipt")
-        resolved_plan = plan or self.create_plan(worker_id, episode_id)
+        resolved_plan = plan or self.create_plan(worker_id, episode_id, actor)
+
+        # Evidence class: OBSERVED for live mode, SIMULATED for judge/replay
+        evidence_class = (
+            EvidenceClass.OBSERVED if self.settings.is_live else EvidenceClass.SIMULATED
+        )
+
         receipt = build_receipt(
             receipt_id=f"receipt-{record.commitment_id.removeprefix('commit-')}",
             tenant_id=worker.tenant_id,
@@ -141,18 +316,34 @@ class HeatReserveService:
             decision=record.decision,
             plan=resolved_plan,
             source_snapshot_ids=tuple(
-                snapshot.snapshot_id for snapshot in self.fixtures.snapshots if snapshot.verified
+                snapshot.snapshot_id for snapshot in self.fixtures.snapshots
+                if snapshot.verified
             ),
             created_at=self.fixtures.episode.start_at,
+            signing_key=self._signing_key,
+            signing_key_id=self.settings.receipt_signing_key_id,
         )
         self.repository.save_receipt(receipt)
+        self._audit.record(
+            event_type=RECEIPT_CREATED,
+            tenant_id=worker.tenant_id,
+            actor=actor,
+            target_type="receipt",
+            target_id=receipt.receipt_id,
+            metadata={
+                "commitment_id": record.commitment_id,
+                "digest": receipt.digest.value[:16] if receipt.digest else "",
+                "signed": str(receipt.signature_info is not None),
+            },
+        )
         return receipt
 
     def allocator_scenarios(self, budget_minor: int | None = None) -> tuple[dict[str, Any], ...]:
         budget = budget_minor if budget_minor is not None else self.fixtures.reserve.initial_minor
-        return tuple(_allocation_payload(result) for result in compare_strategies(
-            self.fixtures.allocation_candidates, budget
-        ))
+        return tuple(
+            _allocation_payload(result)
+            for result in compare_strategies(self.fixtures.allocation_candidates, budget)
+        )
 
     def run_judge_demo(self) -> dict[str, Any]:
         with self._judge_lock:
@@ -165,7 +356,9 @@ class HeatReserveService:
             if record.decision.status != "QUALIFIED":
                 raise RuntimeError("Judge fixture no longer produces a qualified commitment")
             plan = self.create_plan(worker.worker_id, self.fixtures.episode.episode_id)
-            receipt = self.create_receipt(worker.worker_id, self.fixtures.episode.episode_id, plan)
+            receipt = self.create_receipt(
+                worker.worker_id, self.fixtures.episode.episode_id, plan
+            )
             return self._judge_payload(worker, policy, record, plan, receipt)
 
     def evidence_sources(self) -> tuple[dict[str, Any], ...]:
@@ -205,35 +398,52 @@ class HeatReserveService:
             "scenario": _scenario_summary(worker),
             "episode": self.fixtures.episode,
             "commitment": {
-                "commitment_id": record.commitment_id,
+                "commitment_id": record.commitment_id or None,
                 "created": record.created,
                 "authority": "DETERMINISTIC_POLICY_ENGINE",
                 "simulated": True,
                 "decision": record.decision,
             },
             "plan": plan,
+            "optimizer_version": plan.model,
             "receipt": receipt,
-            "receipt_verification": verify_receipt(receipt),
+            "receipt_verification": verify_receipt(receipt, self._signing_key),
             "tamper_verification": verify_receipt(tampered),
             "allocator": self.allocator_scenarios(),
             "reserve": self.repository.get_reserve(policy.reserve_id),
             "evidence": self.fixtures.sources,
+            "live_source": self.live_source_status() if self.settings.is_live else None,
             "reconciliation": {
                 "ledger_reconciles": self.repository.reserve_reconciles(policy.reserve_id),
                 "commitment_count": self.repository.commitment_count(),
                 "evidence_class": "MEASURED",
             },
+            "mode": self.settings.mode,
         }
 
 
 def _allocation_payload(result) -> dict[str, Any]:
+    spent_pct = (
+        round(result.spend_minor / result.budget_minor * 100, 1)
+        if result.budget_minor > 0
+        else 0.0
+    )
+    minutes_per_k = (
+        round(
+            result.projected_high_heat_minutes_addressed / (result.spend_minor / 1000), 1
+        )
+        if result.spend_minor > 0
+        else 0.0
+    )
     return {
         "strategy": result.strategy,
         "selected_worker_ids": result.selected_worker_ids,
         "unselected_worker_ids": result.unselected_worker_ids,
         "spend_minor": result.spend_minor,
         "budget_minor": result.budget_minor,
+        "budget_utilization_pct": spent_pct,
         "projected_high_heat_minutes_addressed": result.projected_high_heat_minutes_addressed,
+        "minutes_per_1000_minor": minutes_per_k,
         "zone_coverage": result.zone_coverage,
         "explanations": result.explanations,
         "evidence_class": "SIMULATED",
@@ -300,7 +510,6 @@ def load_fixture_bundle(fixture_dir: Path) -> FixtureBundle:
     )
 
 
-
 def _validate_fact_sources(
     snapshots: tuple[SourceSnapshot, ...],
     conditions: tuple[HourlyCondition, ...],
@@ -321,6 +530,7 @@ def _validate_fact_sources(
                 f"Cooling fact {point.fact_id} is not bound to a verified cooling_points snapshot"
             )
 
+
 def _load_candidates(fixture_dir: Path) -> tuple[AllocationCandidate, ...]:
     return tuple(
         AllocationCandidate(
@@ -335,7 +545,9 @@ def _load_candidates(fixture_dir: Path) -> tuple[AllocationCandidate, ...]:
 
 def _make_provider(settings: Settings) -> PlannerProvider:
     if settings.mode == "safe_fallback":
-        return DeterministicProvider()
+        return DeterministicProvider(
+            max_consecutive_hours=settings.max_consecutive_work_hours
+        )
     if settings.planner_provider == "ollama":
         return OllamaProvider(settings.ollama_url, settings.ollama_model)
-    return DeterministicProvider()
+    return DeterministicProvider(max_consecutive_hours=settings.max_consecutive_work_hours)

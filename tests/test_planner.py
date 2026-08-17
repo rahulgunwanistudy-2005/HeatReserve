@@ -142,12 +142,25 @@ def test_safe_fallback_mode_forces_deterministic_provider(tmp_path, fixture_dir)
     settings = Settings(
         mode="safe_fallback",
         database_path=tmp_path / "safe-fallback.db",
+        database_url=None,
         fixture_dir=fixture_dir,
         planner_provider="ollama",
         ollama_url="http://127.0.0.1:1",
         ollama_model="unreachable",
+        planner_timeout_seconds=4.0,
         log_level="WARNING",
         allowed_origins=("http://localhost:8000",),
+        source_provider="fixture",
+        source_timeout_seconds=10.0,
+        source_max_age_seconds=3600,
+        open_meteo_lat=28.6139,
+        open_meteo_lon=77.2090,
+        open_meteo_zone_id="DELHI_DEMO_ZONE_A",
+        auth_mode="none",
+        api_keys=frozenset(),
+        receipt_signing_key_path=None,
+        receipt_signing_key_id="key-1",
+        max_consecutive_work_hours=3,
     )
     service = HeatReserveService(settings)
     assert service.provider.name == "deterministic"

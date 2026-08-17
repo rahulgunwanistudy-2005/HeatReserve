@@ -62,12 +62,25 @@ def test_liveness_survives_fixture_readiness_failure(settings, tmp_path) -> None
     bad_settings = settings.__class__(
         mode=settings.mode,
         database_path=tmp_path / "broken.db",
+        database_url=None,
         fixture_dir=broken,
         planner_provider=settings.planner_provider,
         ollama_url=settings.ollama_url,
         ollama_model=settings.ollama_model,
+        planner_timeout_seconds=settings.planner_timeout_seconds,
         log_level=settings.log_level,
         allowed_origins=settings.allowed_origins,
+        source_provider="fixture",
+        source_timeout_seconds=10.0,
+        source_max_age_seconds=3600,
+        open_meteo_lat=settings.open_meteo_lat,
+        open_meteo_lon=settings.open_meteo_lon,
+        open_meteo_zone_id=settings.open_meteo_zone_id,
+        auth_mode="none",
+        api_keys=frozenset(),
+        receipt_signing_key_path=None,
+        receipt_signing_key_id="key-1",
+        max_consecutive_work_hours=3,
     )
     with TestClient(create_app(bad_settings), raise_server_exceptions=False) as client:
         assert client.get("/health/live").status_code == 200
