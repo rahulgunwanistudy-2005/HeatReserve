@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
 from collections import defaultdict, deque
@@ -23,7 +24,8 @@ from .service import HeatReserveService
 from .sources import SourceFetchError, SourceParseError, SourceStaleError
 
 LOGGER = logging.getLogger("heatreserve.api")
-WEB_DIR = Path(__file__).resolve().parents[2] / "web"
+_web_dir_env = os.getenv("HEATRESERVE_WEB_DIR", "")
+WEB_DIR = Path(_web_dir_env) if _web_dir_env else Path(__file__).resolve().parents[2] / "web"
 
 
 # ── Request models ──────────────────────────────────────────────────────────
