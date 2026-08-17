@@ -1,0 +1,13 @@
+{
+  "outputDirectory": "web",
+  "rewrites": [
+    {
+      "source": "/v1/:path*",
+      "destination": "https://heatreserve.onrender.com/v1/:path*"
+    },
+    {
+      "source": "/assets/:file",
+      "destination": "/:file"
+    }
+  ]
+}
